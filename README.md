@@ -4,7 +4,7 @@
 
 Home Assistant integracija ir Lovelace korta Lietuvos krepšinio lygos (LKL) turnyrinei lentelei.
 
-Duomenų šaltinis – oficiali [lkl.lt](https://lkl.lt/turnyrine-lentele) turnyrinė lentelė.
+Duomenų šaltiniai – oficiali [lkl.lt](https://lkl.lt/turnyrine-lentele) turnyrinė lentelė ir [rungtynių rezultatai](https://lkl.lt/rezultatai).
 
 ## Galimybės
 
@@ -12,11 +12,12 @@ Duomenų šaltinis – oficiali [lkl.lt](https://lkl.lt/turnyrine-lentele) turny
 - automatinis aktualios LKL turnyrinės lentelės nuskaitymas;
 - duomenų atnaujinimas kas 30 minučių;
 - komandos vieta, sužaistos rungtynės, pergalės, pralaimėjimai ir pergalių procentas;
-- pelnytų ir praleistų taškų vidurkiai;
-- pasirenkamas taškų skirtumo `+/−` stulpelis;
-- komandų logotipai, jei juos pateikia LKL svetainė;
+- tikslus bendras sezono pelnytų ir praleistų taškų skirtumas `+/−`;
+- komandų logotipai;
+- LKL logotipas kortos antraštėje;
 - integruota `custom:lkl-standings-card` Lovelace korta;
 - vizualus kortos nustatymų redaktorius;
+- normalus, kompaktiškas ir super kompaktiškas režimai;
 - mėgstamos komandos paryškinimas;
 - 1–8 vietų atkrintamųjų zonos žymėjimas.
 
@@ -29,9 +30,9 @@ Jei reikia pridėti rankiniu būdu:
 1. Atidaryk **HACS → Integrations**.
 2. Viršuje dešinėje pasirink **Custom repositories**.
 3. Įrašyk `https://github.com/braticks/lkl-standings` ir pasirink tipą **Integration**.
-4. Įdiek **LKL Standings**.
+4. Įdiek **LKL turnyrinė lentelė**.
 5. Perkrauk Home Assistant.
-6. Atidaryk **Nustatymai → Įrenginiai ir paslaugos → Pridėti integraciją → LKL Standings**.
+6. Atidaryk **Nustatymai → Įrenginiai ir paslaugos → Pridėti integraciją → LKL turnyrinė lentelė**.
 
 Lovelace kortos resursą integracija registruoja automatiškai, jei Home Assistant naudoja Lovelace resursų saugojimo režimą.
 
@@ -48,10 +49,11 @@ favorite_team: ZAL
 always_show_favorite: true
 show_zones: true
 team_logo_mode: icon
+show_league_logo: true
 show_gp: true
 show_pct: true
 show_diff: true
-compact: false
+density: normal
 highlight_favorite: true
 ```
 
@@ -60,24 +62,29 @@ highlight_favorite: true
 - `count` – kiek komandų rodyti;
 - `favorite_team` – mėgstamos komandos kodas;
 - `always_show_favorite` – mėgstamą komandą rodyti net jei ji nepatenka į pasirinktą TOP;
-- `team_logo_mode` – logotipo režimas: `icon`, `background` arba `none`;
+- `team_logo_mode` – komandų logotipų režimas: `icon`, `background` arba `none`;
+- `show_league_logo` – rodyti LKL logotipą kortos antraštėje;
 - `show_gp` – rodyti sužaistų rungtynių skaičių;
 - `show_pct` – rodyti pergalių procentą;
-- `show_diff` – rodyti taškų skirtumą `+/−`;
+- `show_diff` – rodyti bendrą sezono taškų skirtumą `+/−`;
 - `show_zones` – pažymėti atkrintamųjų zoną;
-- `compact` – kompaktiškas kortos režimas;
+- `density` – kortos tankumas: `normal`, `compact` arba `super_compact`;
 - `highlight_favorite` – paryškinti mėgstamą komandą.
+
+### Super kompaktiškas režimas
+
+`density: super_compact` sumažina eilučių aukštį, tarpus, logotipus ir šriftus. Šiame režime automatiškai paslepiamas sužaistų rungtynių stulpelis bei zonų legenda, kad lentelė užimtų kuo mažiau vietos.
 
 ## Kaip skaičiuojamas +/−
 
-LKL svetainė pateikia kiekvienos komandos vidutiniškai pelnytus ir praleistus taškus. Kortos `+/−` reikšmė apskaičiuojama:
+`+/−` yra tikslus bendras sezono taškų skirtumas:
 
-`pelnytų taškų vidurkis − praleistų taškų vidurkis`
+`visi pelnyti taškai − visi praleisti taškai`
 
-Pavyzdžiui, jei komanda vidutiniškai pelno `97,3`, o praleidžia `76,0` taško, kortoje bus rodoma `+21,3`.
+Reikšmė skaičiuojama iš oficialiame LKL rezultatų puslapyje pateiktų sužaistų rungtynių rezultatų, todėl rodoma sveiku skaičiumi, pvz. `+64`, `-12` arba `0`.
 
 ## Pastabos
 
-Integracija nuskaito oficialią LKL turnyrinės lentelės svetainę. Jei LKL pakeistų puslapio struktūrą ar lentelės stulpelių pavadinimus, parserį gali reikėti atnaujinti.
+Integracija nuskaito oficialią LKL svetainę. Jei LKL pakeistų puslapių struktūrą ar lentelių žymėjimą, parserį gali reikėti atnaujinti.
 
 Šis projektas nėra oficialiai susijęs su Lietuvos krepšinio lyga.
