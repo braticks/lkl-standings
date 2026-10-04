@@ -1,38 +1,43 @@
-# LKL Standings for Home Assistant
+# LKL turnyrinė lentelė Home Assistant
 
-[![Open your Home Assistant instance and open this repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=braticks&repository=lkl-standings&category=integration)
+[![Atidaryti šią saugyklą Home Assistant Community Store](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=braticks&repository=lkl-standings&category=integration)
 
-Home Assistant custom integration + Lovelace card for the current Lithuanian Basketball League (LKL) standings.
+Home Assistant integracija ir Lovelace korta Lietuvos krepšinio lygos (LKL) turnyrinei lentelei.
 
-Data source: the official [lkl.lt](https://lkl.lt/turnyrine-lentele) standings page.
+Duomenų šaltinis – oficiali [lkl.lt](https://lkl.lt/turnyrine-lentele) turnyrinė lentelė.
 
-## Features
+## Galimybės
 
-- `sensor.lkl_standings`
-- current-season standings from LKL.lt
-- 30-minute refresh
-- team position, games, wins, losses and win percentage
-- team logos when provided by the LKL standings HTML
-- bundled `custom:lkl-standings-card`
-- visual card editor
-- favorite-team highlight
-- 1–8 playoff-zone indicator
+- sensorius `sensor.lkl_standings`;
+- automatinis aktualios LKL turnyrinės lentelės nuskaitymas;
+- duomenų atnaujinimas kas 30 minučių;
+- komandos vieta, sužaistos rungtynės, pergalės, pralaimėjimai ir pergalių procentas;
+- pelnytų ir praleistų taškų vidurkiai;
+- pasirenkamas taškų skirtumo `+/−` stulpelis;
+- komandų logotipai, jei juos pateikia LKL svetainė;
+- integruota `custom:lkl-standings-card` Lovelace korta;
+- vizualus kortos nustatymų redaktorius;
+- mėgstamos komandos paryškinimas;
+- 1–8 vietų atkrintamųjų zonos žymėjimas.
 
-## Installation with HACS
+## Diegimas per HACS
 
-Use the **Open in HACS** button above for one-click setup.
+Patogiausia naudoti viršuje esantį **Open in HACS** mygtuką.
 
-Manual fallback:
+Jei reikia pridėti rankiniu būdu:
 
-1. HACS → Integrations → three dots → Custom repositories.
-2. Add `https://github.com/braticks/lkl-standings` as **Integration**.
-3. Install **LKL Standings**.
-4. Restart Home Assistant.
-5. Settings → Devices & services → Add integration → **LKL Standings**.
+1. Atidaryk **HACS → Integrations**.
+2. Viršuje dešinėje pasirink **Custom repositories**.
+3. Įrašyk `https://github.com/braticks/lkl-standings` ir pasirink tipą **Integration**.
+4. Įdiek **LKL Standings**.
+5. Perkrauk Home Assistant.
+6. Atidaryk **Nustatymai → Įrenginiai ir paslaugos → Pridėti integraciją → LKL Standings**.
 
-The bundled Lovelace card resource is registered automatically in storage mode.
+Lovelace kortos resursą integracija registruoja automatiškai, jei Home Assistant naudoja Lovelace resursų saugojimo režimą.
 
-## Card
+## Kortos naudojimas
+
+Kortą galima pridėti per Home Assistant UI arba YAML:
 
 ```yaml
 type: custom:lkl-standings-card
@@ -45,10 +50,34 @@ show_zones: true
 team_logo_mode: icon
 show_gp: true
 show_pct: true
+show_diff: true
 compact: false
 highlight_favorite: true
 ```
 
-## Notes
+### Pagrindiniai nustatymai
 
-The integration reads the official LKL standings table. If LKL.lt changes its table markup or column names, the parser may need an update.
+- `count` – kiek komandų rodyti;
+- `favorite_team` – mėgstamos komandos kodas;
+- `always_show_favorite` – mėgstamą komandą rodyti net jei ji nepatenka į pasirinktą TOP;
+- `team_logo_mode` – logotipo režimas: `icon`, `background` arba `none`;
+- `show_gp` – rodyti sužaistų rungtynių skaičių;
+- `show_pct` – rodyti pergalių procentą;
+- `show_diff` – rodyti taškų skirtumą `+/−`;
+- `show_zones` – pažymėti atkrintamųjų zoną;
+- `compact` – kompaktiškas kortos režimas;
+- `highlight_favorite` – paryškinti mėgstamą komandą.
+
+## Kaip skaičiuojamas +/−
+
+LKL svetainė pateikia kiekvienos komandos vidutiniškai pelnytus ir praleistus taškus. Kortos `+/−` reikšmė apskaičiuojama:
+
+`pelnytų taškų vidurkis − praleistų taškų vidurkis`
+
+Pavyzdžiui, jei komanda vidutiniškai pelno `97,3`, o praleidžia `76,0` taško, kortoje bus rodoma `+21,3`.
+
+## Pastabos
+
+Integracija nuskaito oficialią LKL turnyrinės lentelės svetainę. Jei LKL pakeistų puslapio struktūrą ar lentelės stulpelių pavadinimus, parserį gali reikėti atnaujinti.
+
+Šis projektas nėra oficialiai susijęs su Lietuvos krepšinio lyga.
