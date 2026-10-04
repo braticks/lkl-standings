@@ -1,4 +1,4 @@
-const CARD_VERSION = "1.0.0";
+const CARD_VERSION = "1.0.2";
 
 const DEFAULT_CONFIG = {
   entity: "sensor.lkl_standings",
@@ -219,14 +219,45 @@ class LklStandingsCard extends HTMLElement {
 }
 
 class LklStandingsCardEditor extends HTMLElement {
-  setConfig(config) { this._config = { ...DEFAULT_CONFIG, ...config }; this._render(); }
-  set hass(hass) { this._hass = hass; this._render(); }
+  setConfig(config) {
+    this._config = { ...DEFAULT_CONFIG, ...config };
+    if (!this._rendered) this._render();
+    else this._syncControls();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    if (!this._rendered) this._render();
+  }
+
   _change(key, value) {
     this._config = { ...this._config, [key]: value };
-    this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: this._config }, bubbles: true, composed: true }));
+    this.dispatchEvent(new CustomEvent("config-changed", {
+      detail: { config: this._config },
+      bubbles: true,
+      composed: true,
+    }));
   }
+
+  _syncControls() {
+    if (!this._rendered || !this._config) return;
+    if (this.contains(document.activeElement)) return;
+
+    this.querySelectorAll("[data-k]").forEach((el) => {
+      const key = el.dataset.k;
+      const value = this._config[key];
+      if (el.type === "checkbox") {
+        el.checked = key === "compact" ? value === true : value !== false;
+      } else if (el.type === "number") {
+        el.value = asInt(value, 10);
+      } else {
+        el.value = value ?? "";
+      }
+    });
+  }
+
   _render() {
-    if (!this._config) return;
+    if (!this._config || this._rendered) return;
     this.innerHTML = `
       <style>
         .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 0}.full{grid-column:1/-1}
@@ -248,13 +279,20 @@ class LklStandingsCardEditor extends HTMLElement {
         </select></label>
         ${[["always_show_favorite","Visada rodyti mėgstamą"],["show_zones","Rodyti zonas"],["show_gp","Rodyti rungtynes"],["show_pct","Rodyti %"],["compact","Kompaktiška"],["highlight_favorite","Pažymėti mėgstamą"]].map(([k,t]) => `<label class="check"><input data-k="${k}" type="checkbox" ${this._config[k]!==false && (k!=="compact" || this._config[k]===true)?'checked':''}>${t}</label>`).join("")}
       </div>`;
-    this.querySelectorAll("[data-k]").forEach(el => {
+
+    this.querySelectorAll("[data-k]").forEach((el) => {
       el.addEventListener("change", () => {
-        const k = el.dataset.k;
-        const v = el.type === "checkbox" ? el.checked : el.type === "number" ? asInt(el.value, 10) : el.value;
-        this._change(k, v);
+        const key = el.dataset.k;
+        const value = el.type === "checkbox"
+          ? el.checked
+          : el.type === "number"
+            ? asInt(el.value, 10)
+            : el.value;
+        this._change(key, value);
       });
     });
+
+    this._rendered = true;
   }
 }
 
