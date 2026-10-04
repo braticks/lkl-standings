@@ -1,4 +1,4 @@
-const CARD_VERSION = "1.0.3";
+const CARD_VERSION = "1.0.4";
 
 const DEFAULT_CONFIG = {
   entity: "sensor.lkl_standings",
@@ -43,10 +43,9 @@ const formatPct = (value, games, wins) => {
 const formatDiff = (value) => {
   const n = asNumber(value);
   if (n === null) return "-";
-  const rounded = Math.round(n * 10) / 10;
-  if (Math.abs(rounded) < 0.05) return "0";
-  const text = (Number.isInteger(rounded) ? `${rounded}` : rounded.toFixed(1)).replace(".", ",");
-  return rounded > 0 ? `+${text}` : text;
+  const rounded = Math.round(n);
+  if (rounded === 0) return "0";
+  return rounded > 0 ? `+${rounded}` : `${rounded}`;
 };
 
 const zoneFor = (position) => position >= 1 && position <= 8 ? "playoff" : "outside";
@@ -87,27 +86,19 @@ class LklStandingsCard extends HTMLElement {
 
   _teams(stateObj) {
     const raw = Array.isArray(stateObj?.attributes?.teams) ? stateObj.attributes.teams : [];
-    return raw.map((team) => {
-      const pointsFor = asNumber(team?.points_for_avg);
-      const pointsAgainst = asNumber(team?.points_against_avg);
-      const pointsDiff = pointsFor !== null && pointsAgainst !== null
-        ? Math.round((pointsFor - pointsAgainst) * 10) / 10
-        : null;
-
-      return {
-        position: asInt(team?.position, 0),
-        code: String(team?.code ?? "").toUpperCase(),
-        name: String(team?.name ?? team?.code ?? ""),
-        logo: team?.logo ? String(team.logo) : "",
-        games_played: asInt(team?.games_played, 0),
-        wins: asInt(team?.wins, 0),
-        losses: asInt(team?.losses, 0),
-        win_percentage: team?.win_percentage,
-        points_for_avg: pointsFor,
-        points_against_avg: pointsAgainst,
-        points_diff_avg: pointsDiff,
-      };
-    }).filter((team) => team.position > 0).sort((a, b) => a.position - b.position);
+    return raw.map((team) => ({
+      position: asInt(team?.position, 0),
+      code: String(team?.code ?? "").toUpperCase(),
+      name: String(team?.name ?? team?.code ?? ""),
+      logo: team?.logo ? String(team.logo) : "",
+      games_played: asInt(team?.games_played, 0),
+      wins: asInt(team?.wins, 0),
+      losses: asInt(team?.losses, 0),
+      win_percentage: team?.win_percentage,
+      points_for: asNumber(team?.points_for),
+      points_against: asNumber(team?.points_against),
+      points_diff: asNumber(team?.points_diff),
+    })).filter((team) => team.position > 0).sort((a, b) => a.position - b.position);
   }
 
   _visibleTeams(allTeams) {
@@ -148,7 +139,7 @@ class LklStandingsCard extends HTMLElement {
       ? `<img class="row-bg-logo" src="${escapeHtml(team.logo)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
       : "";
 
-    const diffClass = team.points_diff_avg > 0 ? "positive" : team.points_diff_avg < 0 ? "negative" : "";
+    const diffClass = team.points_diff > 0 ? "positive" : team.points_diff < 0 ? "negative" : "";
 
     return `
       <div class="${classes.join(" ")}">
@@ -163,7 +154,7 @@ class LklStandingsCard extends HTMLElement {
         <div class="stat wins">${team.wins}</div>
         <div class="stat losses">${team.losses}</div>
         ${cfg.show_pct !== false ? `<div class="stat pct">${formatPct(team.win_percentage, team.games_played, team.wins)}</div>` : ""}
-        ${cfg.show_diff === true ? `<div class="stat diff ${diffClass}">${formatDiff(team.points_diff_avg)}</div>` : ""}
+        ${cfg.show_diff === true ? `<div class="stat diff ${diffClass}" title="Pelnyti ${team.points_for ?? '-'} / praleisti ${team.points_against ?? '-'}">${formatDiff(team.points_diff)}</div>` : ""}
       </div>`;
   }
 
@@ -281,7 +272,7 @@ class LklStandingsCardEditor extends HTMLElement {
       const key = el.dataset.k;
       const value = this._config[key];
       if (el.type === "checkbox") {
-        el.checked = key === "compact" ? value === true : value !== false;
+        el.checked = key === "compact" || key === "show_diff" ? value === true : value !== false;
       } else if (el.type === "number") {
         el.value = asInt(value, 10);
       } else {
@@ -316,7 +307,7 @@ class LklStandingsCardEditor extends HTMLElement {
           ["show_zones","Rodyti zonas"],
           ["show_gp","Rodyti rungtynes"],
           ["show_pct","Rodyti %"],
-          ["show_diff","Rodyti +/−"],
+          ["show_diff","Rodyti taškų skirtumą (+/−)"],
           ["compact","Kompaktiška"],
           ["highlight_favorite","Pažymėti mėgstamą"],
         ].map(([k,t]) => `<label class="check"><input data-k="${k}" type="checkbox" ${k === "compact" || k === "show_diff" ? (this._config[k] === true ? 'checked' : '') : (this._config[k] !== false ? 'checked' : '')}>${t}</label>`).join("")}
