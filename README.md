@@ -1,5 +1,7 @@
 # LKL Standings for Home Assistant
 
+[![Open your Home Assistant instance and open this repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=braticks&repository=lkl-standings&category=integration)
+
 Home Assistant custom integration + Lovelace card for the current Lithuanian Basketball League (LKL) standings.
 
 Data source: the official [lkl.lt](https://lkl.lt/turnyrine-lentele) standings page.
@@ -16,13 +18,17 @@ Data source: the official [lkl.lt](https://lkl.lt/turnyrine-lentele) standings p
 - favorite-team highlight
 - 1–8 playoff-zone indicator
 
-## Installation
+## Installation with HACS
 
-### HACS custom repository
+Use the **Open in HACS** button above for one-click setup.
 
-Add `https://github.com/braticks/lkl-standings` as an **Integration** repository, install it, then restart Home Assistant.
+Manual fallback:
 
-After restart: **Settings → Devices & services → Add integration → LKL Standings**.
+1. HACS → Integrations → three dots → Custom repositories.
+2. Add `https://github.com/braticks/lkl-standings` as **Integration**.
+3. Install **LKL Standings**.
+4. Restart Home Assistant.
+5. Settings → Devices & services → Add integration → **LKL Standings**.
 
 The bundled Lovelace card resource is registered automatically in storage mode.
 
