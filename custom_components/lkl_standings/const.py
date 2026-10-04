@@ -1,9 +1,9 @@
-"""Constants for LKL Standings."""
+"""LKL Standings konstantos."""
 
 from datetime import timedelta
 
 DOMAIN = "lkl_standings"
 NAME = "LKL Standings"
-FRONTEND_VERSION = "1.0.1"
+FRONTEND_VERSION = "1.0.2"
 SOURCE_URL = "https://lkl.lt/turnyrine-lentele"
 DEFAULT_UPDATE_INTERVAL = timedelta(minutes=30)
